@@ -95,7 +95,10 @@ function doAsyncTask() {
   });
 }
 
-doAsyncTask().then(val => console.log(val), err => console.error(err));
+doAsyncTask().then(
+  (val) => console.log(val),
+  (err) => console.error(err)
+);
 ```
 
 <!-- 🤔🤔🤔🤔🤔 QUIZ 1 🤔🤔🤔🤔🤔 -->
@@ -120,7 +123,7 @@ One of the nice things about Promises is that if we add a `then` handler _after_
 let promise = Promise.resolve("done");
 
 let promise = Promise.resolve("done");
-promise.then(val => console.log(val)); // 'done'
+promise.then((val) => console.log(val)); // 'done'
 ```
 
 In the above example, even though the Promise has resolved _before_ we added the success handler, the promise framework still calls the success handler.
@@ -132,7 +135,7 @@ function doAsyncTask() {
   return Promise.resolve();
 }
 
-doAsyncTask().then(_ => console.log(message)); // <-- Unlike callbacks, promises are always async
+doAsyncTask().then((_) => console.log(message)); // <-- Unlike callbacks, promises are always async
 let message = "Promise Resolved";
 ```
 
@@ -143,38 +146,38 @@ We can also connect a series of `then` handlers together in a chain, like so:
 ```js
 const prom = Promise.resolve("done");
 prom
-  .then(val => {
+  .then((val) => {
     console.log(val);
     return "done2"; // <-- !NOTE: We have to return something, otherwise it doesn't get passed
   })
-  .then(val => console.log(val));
+  .then((val) => console.log(val));
 // 'done'
 // 'done2'
 ```
 
-* We **have** to return something from each `then`, otherwise it doesn't get passed to the next `then`
+- We **have** to return something from each `then`, otherwise it doesn't get passed to the next `then`
 
 ```js
 const prom = Promise.resolve("done");
 prom
-  .then(val => {
+  .then((val) => {
     console.log(val);
   })
-  .then(val => console.log(val));
+  .then((val) => console.log(val));
 // 'done'
 // 'undefined'
 ```
 
-* This is different to forking a promise chain
+- This is different to forking a promise chain
 
 ```js
 const prom = Promise.resolve("done");
-prom.then(val => {
+prom.then((val) => {
   console.log(val);
   return "done2";
 });
 
-prom.then(val => console.log(val)); // <-- Doesn't get passed the result of the previous then
+prom.then((val) => console.log(val)); // <-- Doesn't get passed the result of the previous then
 // 'done'
 // 'done'
 ```
@@ -185,16 +188,16 @@ We can also pause execution waiting for another promise to resolve
 
 ```js
 Promise.resolve("done")
-  .then(val => {
+  .then((val) => {
     console.log(val);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(() => resolve("done2"), 1000);
     });
 
     // The next then waits for this promise to resolve before continueing
   })
-  .then(val => console.log(val));
+  .then((val) => console.log(val));
 ```
 
 <!-- 🤔🤔🤔🤔🤔 QUIZ 3 🤔🤔🤔🤔🤔 -->
@@ -205,8 +208,11 @@ Promises pass an error along the chain till it finds an error handler. So we don
 
 ```js
 Promise.reject("fail")
-  .then(val => console.log(val)) // <-- Note we dont have an error handler here!
-  .then(val => console.log(val), err => console.error(err));
+  .then((val) => console.log(val)) // <-- Note we dont have an error handler here!
+  .then(
+    (val) => console.log(val),
+    (err) => console.error(err)
+  );
 ```
 
 If we _throw_ an exception from our promise function or one of the success handlers, the promise gets rejected and the error handler is called, like so:
@@ -215,19 +221,25 @@ If we _throw_ an exception from our promise function or one of the success handl
 new Promise((resolve, reject) => {
   throw "fail";
 })
-  .then(val => {
+  .then((val) => {
     console.log(val);
   })
-  .then(val => console.log(val), err => console.error(err));
+  .then(
+    (val) => console.log(val),
+    (err) => console.error(err)
+  );
 // [Error: fail]
 ```
 
 ```js
 Promise.resolve("done")
-  .then(val => {
+  .then((val) => {
     throw "fail";
   })
-  .then(val => console.log(val), err => console.error(err));
+  .then(
+    (val) => console.log(val),
+    (err) => console.error(err)
+  );
 // [Error: fail]
 ```
 
@@ -235,11 +247,11 @@ The `catch` function works exactly the same way as the `then` error handler, it'
 
 ```js
 Promise.resolve("done")
-  .then(val => {
+  .then((val) => {
     throw "fail";
   })
-  .then(val => console.log(val))
-  .catch(err => console.error(err));
+  .then((val) => console.log(val))
+  .catch((err) => console.error(err));
 ```
 
 <!-- 🤔🤔🤔🤔🤔 QUIZ 4 🤔🤔🤔🤔🤔 -->
@@ -252,12 +264,12 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
 
 ```js
 Promise.resolve("done")
-  .then(val => {
+  .then((val) => {
     throw new Error("fail");
   })
-  .then(val => console.log(val))
-  .catch(err => console.error(err))
-  .finally(_ => console.log("Cleaning Up")); // <-- Comming soon!
+  .then((val) => console.log(val))
+  .catch((err) => console.error(err))
+  .finally((_) => console.log("Cleaning Up")); // <-- Comming soon!
 ```
 
 ## Multiple Promises
@@ -271,13 +283,13 @@ const readFile = util.promisify(fs.readFile);
 
 const files = ["./files/demofile.txt", "./files/demofile.other.txt"];
 
-let promises = files.map(name => readFile(name, "utf8"));
+let promises = files.map((name) => readFile(name, "utf8"));
 Promise.all(promises)
-  .then(values => {
+  .then((values) => {
     // <-- Uses .all
     console.log(values);
   })
-  .catch(err => console.error("Error: ", err));
+  .catch((err) => console.error("Error: ", err));
 ```
 
 ### Promise.race
@@ -285,11 +297,11 @@ Promise.all(promises)
 Resolves or rejects when the first promise in the array resolved or rejects
 
 ```js
-let car1 = new Promise(resolve => setTimeout(resolve, 1000, "Car 1."));
-let car2 = new Promise(resolve => setTimeout(resolve, 2000, "Car 2."));
-let car3 = new Promise(resolve => setTimeout(resolve, 3000, "Car 3."));
+let car1 = new Promise((resolve) => setTimeout(resolve, 1000, "Car 1."));
+let car2 = new Promise((resolve) => setTimeout(resolve, 2000, "Car 2."));
+let car3 = new Promise((resolve) => setTimeout(resolve, 3000, "Car 3."));
 
-Promise.race([car1, car2, car3]).then(value => {
+Promise.race([car1, car2, car3]).then((value) => {
   console.log("Promise Resolved", value);
 });
 ```
@@ -300,14 +312,14 @@ Promise.race([car1, car2, car3]).then(value => {
 let car1 = new Promise((_, reject) =>
   setTimeout(reject, 3000, "Car 1 Crashed.")
 );
-let car2 = new Promise(resolve => setTimeout(resolve, 1000, "Car 2."));
-let car3 = new Promise(resolve => setTimeout(resolve, 3000, "Car 3."));
+let car2 = new Promise((resolve) => setTimeout(resolve, 1000, "Car 2."));
+let car3 = new Promise((resolve) => setTimeout(resolve, 3000, "Car 3."));
 
 Promise.race([car1, car2, car3])
-  .then(value => {
+  .then((value) => {
     console.log("Promise Resolved", value);
   })
-  .catch(err => {
+  .catch((err) => {
     console.log("Promise Rejected", err);
   });
 ```

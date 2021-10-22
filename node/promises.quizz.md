@@ -6,13 +6,17 @@ Create a promise version of the async readFile function
 const fs = require("fs");
 
 function readFile(filename, encoding) {
-  fs.readFile(filename, encoding, (err, data) => {
-    //TODO
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) return reject(err);
+      resolve(data);
+    });
   });
 }
-readFile("./files/demofile.txt", "utf-8")
-    .then(...)
-});
+readFile("./files/demofile.txt", "utf-8").then(
+  (data) => console.log("file read: ", data),
+  (err) => console.error("failed to read file", err)
+);
 ```
 
 # Question 2
@@ -24,8 +28,12 @@ const fs = require("fs");
 const zlib = require("zlib");
 
 function zlibPromise(data) {
-  zlib.gzip(data, (error, result) => {
-    //TODO
+  return new Promise((resolve, reject) => {
+    zlib.gzip(data, (err, result) => {
+      //TODO
+      if (err) reject(err);
+      resolve(result);
+    });
   });
 }
 
@@ -38,18 +46,89 @@ function readFile(filename, encoding) {
   });
 }
 
-readFile("./files/demofile.txt", "utf-8")
-    .then(...) // --> Load it then zip it and then print it to screen
-});
+readFile("./files/demofiasdfle.txt", "utf-8")
+  .then((data) => zlibPromise(data))
+  .then(
+    (res) => console.log(res),
+    (err) => console.error(err)
+  );
+// --> Load it then zip it and then print it to screen
 ```
 
 # Question 3
 
 Convert the previous code so that it now chains the promise as well.
 
+```js
+const fs = require("fs");
+const zlib = require("zlib");
+
+function zlibPromise(data) {
+  return new Promise((resolve, reject) => {
+    zlib.gzip(data, (err, result) => {
+      //TODO
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+}
+
+function readFile(filename, encoding) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) reject(err);
+      resolve(data);
+    });
+  });
+}
+
+readFile("./files/demofiasdfle.txt", "utf-8")
+  .then((data) => zlibPromise(data))
+  .then(
+    (res) => console.log(res),
+    (err) => console.error(err)
+  );
+// --> Load it then zip it and then print it to screen
+```
+
 # Question 4
 
 Convert the previous code so that it now handles errors using the catch handler
+
+```js
+const fs = require("fs");
+const zlib = require("zlib");
+
+function zlibPromise(data) {
+  return new Promise((resolve, reject) => {
+    zlib.gzip(data, (err, result) => {
+      //TODO
+      if (err) reject(err);
+      resolve(result);
+      // reject(err);
+    });
+  });
+}
+
+function readFile(filename, encoding) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, encoding, (err, data) => {
+      if (err) reject(err);
+      resolve(data);
+    });
+  });
+}
+
+readFile("./files/demofile2.txt", "utf-8")
+  .then((data) => zlibPromise(data))
+  // .catch((err) => console.error("from catch1"))
+  .then((res) => console.log(res))
+  .then(() => {
+    throw "fail";
+  })
+  .catch((err) => console.error("from catch2"));
+// --> Load it then zip it and then print it to screen
+```
 
 # Question 5
 
@@ -57,7 +136,7 @@ Create some code that tries to read from disk a file and times out if it takes l
 
 ```js
 function readFileFake(sleep) {
-  return new Promise(resolve => setTimeout(resolve, sleep));
+  return new Promise((resolve) => setTimeout(resolve, sleep));
 }
 
 readFileFake(5000); // This resolves a promise after 5 seconds, pretend it's a large file being read from disk

@@ -5,10 +5,18 @@ The below code errors when you run it.
 Make it run without errors but you cannot change the location of the `let` statement, that has to stay at the end.
 
 ```js
+// This works:
+// function doAsyncTask(cb) {
+//   cb();
+// }
+// setTimeout(()=> {
+// doAsyncTask(_ => console.log(message));
+// }, 0)
+
+// or even:
 function doAsyncTask(cb) {
-  cb();
+  setImmediate(cb);
 }
-doAsyncTask(_ => console.log(message));
 
 let message = "Callback Called";
 ```
@@ -22,11 +30,14 @@ const fs = require("fs");
 
 function readFileThenDo(next) {
   fs.readFile("./blah.nofile", (err, data) => {
-    next(data);
+    // next(err);
+    // if(err) throw err
+    next(err, data);
   });
 }
 
-readFileThenDo(data => {
+readFileThenDo((err, data) => {
+  if (err) console.error(err);
   console.log(data);
 });
 ```
@@ -44,8 +55,12 @@ function readFileThenDo(next) {
     next(data);
   });
 }
-// Hint use try..catch
-readFileThenDo(data => {
-  console.log(data);
-});
+// Hint use try..catch // does not actually work, try/catch only works with sync code.
+try {
+  readFileThenDo((data) => {
+    console.log(data);
+  });
+} catch (err) {
+  console.log("moo", err);
+}
 ```
